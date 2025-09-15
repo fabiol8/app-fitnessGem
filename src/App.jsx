@@ -1,8 +1,8 @@
 import React from 'react';
-import FinalMigratedApp from './FinalMigratedApp';
+import MultiUserApp from './MultiUserApp';
 
 const App = () => {
-  return <FinalMigratedApp />;
+  return <MultiUserApp />;
 };
 
 export default App;
