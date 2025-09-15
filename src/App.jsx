@@ -80,7 +80,7 @@ const getFabioDayPlanData = (date, weekNumber) => {
         "LUNEDÌ": { dayName: "LUNEDÌ", meals: [{ time: "13:30", name: "Insalatona Proteica di Quinoa", calories: 750, protein: 25, carbs: 80, fats: 35, ingredients: ["80g Quinoa (cruda)", "150g fagioli neri cotti", "50g mais", "1/2 peperone", "50g spinaci freschi", "30g anacardi", "1 cucchiaio Olio EVO"], prep: "Cuoci la quinoa e lasciala raffreddare. Uniscila in una ciotola con fagioli, mais, peperone a cubetti e spinaci. Tosta gli anacardi e aggiungili. Condisci con olio, sale e succo di lime." }, { time: "16:00", name: "Spuntino", calories: 220, protein: 7, carbs: 25, fats: 11, ingredients: ["1 Mela media", "15 Mandorle"], prep: "Consumare insieme." }, { time: "21:15", name: "Vellutata di Lenticchie Rosse", calories: 650, protein: 38, carbs: 90, fats: 15, ingredients: ["150g Lenticchie rosse secche", "2 carote", "1 gambo di sedano", "1/2 cipolla", "1 cucchiaio Olio EVO"], prep: "Soffriggi le verdure tritate. Aggiungi le lenticchie sciacquate e tosta per un minuto. Copri con brodo e cuoci per 20 minuti. Frulla fino a ottenere una crema." }], supplements: [supplements.energeticDrink, supplements.morning, supplements.lunch, supplements.preWorkout, supplements.preDinner, supplements.dinner, supplements.night], workout: { focus: "SPINTA - Petto, Spalle, Tricipiti", exercises: [{ name: "CHEST PRESS", sets: "3x10-12", type: 'weights', calories: 60 }, { name: "PECTORAL MACHINE", sets: "3x12-15", type: 'weights', calories: 50 }, { name: "ALZATE LATERALI", sets: "3x15", type: 'weights', calories: 40 }, { name: "PUSH DOWN AI CAVI", sets: "3x12-15", type: 'weights', calories: 45 }, { name: "PLANK", sets: "4x45 sec", type: 'bodyweight', calories: 70 }] }},
         "MARTEDÌ": { dayName: "MARTEDÌ", meals: [{ time: "13:30", name: "Riso di Cavolfiore con Ceci e Verdure Miste", calories: 450, protein: 15, carbs: 55, fats: 18, ingredients: ["300g Cavolfiore", "150g ceci cotti", "1 zucchina", "10 pomodorini", "1 cucchiaio Olio EVO"], prep: "Grattugia il cavolfiore per ottenere una consistenza simile al riso. Salta in padella le verdure a cubetti per 5 minuti. Aggiungi il cavolfiore e i ceci e cuoci per altri 5-7 minuti." }, { time: "16:00", name: "Spuntino", calories: 200, protein: 5, carbs: 20, fats: 12, ingredients: ["1 Pera", "10 Noci"], prep: "Consumare insieme." }, { time: "21:15", name: "Burger di Fagioli Cannellini", calories: 420, protein: 22, carbs: 60, fats: 10, ingredients: ["200g Fagioli cannellini cotti", "30g fiocchi d'avena senza glutine", "1/4 di cipolla", "1 cucchiaino Olio EVO"], prep: "Schiaccia i fagioli con una forchetta, uniscili agli altri ingredienti e impasta. Forma due burger e cuocili in padella per 4-5 minuti per lato." }], supplements: [supplements.energeticDrink, supplements.morning, supplements.lunch, supplements.preDinner, supplements.dinner, supplements.night], workout: { focus: "CARDIO HIIT & ADDOME", exercises: [{ name: "TAPIS ROULANT", sets: "30 min", type: 'cardio', calories: 350 }, { name: "CIRCUITO ADDOME", type: 'bodyweight', calories: 120, details: [{ name: 'Plank', sets: '3x45s' }, { name: 'Crunch inverso', sets: '3x20' }, { name: 'Leg raises', sets: '3x15' }, { name: 'Russian Twist', sets: '3x20' }] }] }},
         "MERCOLEDÌ": { dayName: "MERCOLEDÌ", meals: [{ time: "13:30", name: "Buddha Bowl", calories: 710, protein: 28, carbs: 85, fats: 28, ingredients: ["80g Quinoa", "150g ceci", "200g zucca", "50g spinacini", "1/4 avocado", "1 cucchiaio Tahini"], prep: "Cuoci la quinoa. Cuoci la zucca al forno. Componi la ciotola con tutti gli ingredienti e condisci con una salsa preparata con tahini e succo di limone." }, { time: "16:00", name: "Spuntino", calories: 250, protein: 10, carbs: 30, fats: 10, ingredients: ["1 vasetto Yogurt Greco 0%", "10g semi di Chia"], prep: "Mescolare e lasciare riposare 5 min." }, { time: "21:15", name: "Zuppa di Fave e Piselli con Menta", calories: 380, protein: 24, carbs: 55, fats: 7, ingredients: ["200g Fave", "150g piselli", "1/2 cipolla", "Menta fresca", "Olio EVO"], prep: "Soffriggi la cipolla, aggiungi fave e piselli. Copri con brodo vegetale e cuoci per 15 minuti. Aggiungi la menta fresca e frulla parzialmente per ottenere una consistenza cremosa ma con pezzi interi." }], supplements: [supplements.energeticDrink, supplements.morning, supplements.lunch, supplements.preWorkout, supplements.preDinner, supplements.dinner, supplements.night], workout: { focus: "TRAZIONE - Dorso, Bicipiti, Core", exercises: [{ name: "LAT MACHINE", sets: "3x10-12", type: 'weights', calories: 60 }, { name: "REMATORE (PULLEY)", sets: "3x12-15", type: 'weights', calories: 55 }, { name: "CURL CON MANUBRI", sets: "3x10-12", type: 'weights', calories: 40 }, { name: "REVERSE FLY", sets: "3x15", type: 'weights', calories: 35 }, { name: "CRUNCH INVERSO", sets: "4x20", type: 'bodyweight', calories: 50 }] }},
-        "GIOVEDÌ": { dayName: "GIOVEDÌ", meals: [{ time: "13:30", name: "Curry Leggero di Lenticchie Verdi e Spinaci", calories: 380, protein: 15, carbs: 45, fats: 15, ingredients: ["150g Lenticchie verdi cotte", "100ml latte di cocco light", "80g spinaci freschi", "1/4 di cipolla", "zenzero", "curcuma", "Olio EVO"], prep: "Soffriggi la cipolla e lo zenzero. Aggiungi la curcuma e le lenticchie. Versa il latte di cocco e cuoci per 5 minuti. Aggiungi gli spinaci alla fine e cuoci finché non appassiscono." }, { time: "16:00", name: "Spuntino", calories: 180, protein: 6, carbs: 40, fats: 1, ingredients: ["1 Banana", "Pugno di mirtilli"] }, { time: "21:15", name: `"Hummus Bowl" Decostruita`, calories: 420, protein: 15, carbs: 40, fats: 20, ingredients: ["150g Ceci cotti", "2 carote", "1/2 finocchio", "10 olive taggiasche", "1 cucchiaio Tahini"], prep: "Taglia le verdure a bastoncini. Metti i ceci in una ciotola, aggiungi le verdure e le olive. Condisci con una salsa di tahini, limone e acqua." }], supplements: [supplements.energeticDrink, supplements.morning, supplements.lunch, supplements.preDinner, supplements.dinner, supplements.night], workout: { focus: "CARDIO LISS", exercises: [{ name: "CYCLETTE", sets: "45 min", type: 'cardio', calories: 400 }, { name: "STRETCHING", sets: "15 min", type: 'bodyweight', calories: 50, details: [{ name: 'Stretching quadricipiti', sets: '2x30s' }, { name: 'Stretching femorali', sets: '2x30s' }, { name: 'Stretching polpacci', sets: '2x30s' }, { name: 'Stretching pettorali', sets: '2x30s' }, { name: 'Stretching schiena (cat-cow)', sets: '1x10' }] }] }},
+        "GIOVEDÌ": { dayName: "GIOVEDÌ", meals: [{ time: "13:30", name: "Curry Leggero di Lenticchie Verdi e Spinaci", calories: 380, protein: 15, carbs: 45, fats: 15, ingredients: ["150g Lenticchie verdi cotte", "100ml latte di cocco light", "80g spinaci freschi", "1/4 di cipolla", "zenzero", "curcuma", "Olio EVO"], prep: "Soffriggi la cipolla e lo zenzero. Aggiungi la curcuma e le lenticchie. Versa il latte di cocco e cuoci per 5 minuti. Aggiungi gli spinaci alla fine e cuoci finché non appassiscono." }, { time: "16:00", name: "Spuntino", calories: 180, protein: 6, carbs: 40, fats: 1, ingredients: ["1 Banana", "Pugno di mirtilli"] }, { time: "21:15", name: "\"Hummus Bowl\" Decostruita", calories: 420, protein: 15, carbs: 40, fats: 20, ingredients: ["150g Ceci cotti", "2 carote", "1/2 finocchio", "10 olive taggiasche", "1 cucchiaio Tahini"], prep: "Taglia le verdure a bastoncini. Metti i ceci in una ciotola, aggiungi le verdure e le olive. Condisci con una salsa di tahini, limone e acqua." }], supplements: [supplements.energeticDrink, supplements.morning, supplements.lunch, supplements.preDinner, supplements.dinner, supplements.night], workout: { focus: "CARDIO LISS", exercises: [{ name: "CYCLETTE", sets: "45 min", type: 'cardio', calories: 400 }, { name: "STRETCHING", sets: "15 min", type: 'bodyweight', calories: 50, details: [{ name: 'Stretching quadricipiti', sets: '2x30s' }, { name: 'Stretching femorali', sets: '2x30s' }, { name: 'Stretching polpacci', sets: '2x30s' }, { name: 'Stretching pettorali', sets: '2x30s' }, { name: 'Stretching schiena (cat-cow)', sets: '1x10' }] }] }},
         "VENERDÌ": { dayName: "VENERDÌ", meals: [{ time: "13:30", name: "Spezzatino di Lenticchie e Funghi", calories: 670, protein: 40, carbs: 95, fats: 12, ingredients: ["150g Lenticchie", "150g funghi", "soffritto di carota, sedano e cipolla", "100g passata di pomodoro", "rosmarino", "Olio EVO"], prep: "Soffriggi le verdure. Aggiungi i funghi a pezzi. Unisci le lenticchie, la passata di pomodoro e il rosmarino. Cuoci per circa 15 minuti." }, { time: "16:00", name: "Spuntino", calories: 250, protein: 20, carbs: 30, fats: 5, ingredients: ["1 shake Proteine Vegane", "Acqua"] }, { time: "21:15", name: "Polpette di Melanzane e Fagioli al forno", calories: 260, protein: 10, carbs: 35, fats: 8, ingredients: ["1 melanzana", "100g fagioli borlotti cotti", "basilico", "aglio", "Olio EVO"], prep: "Cuoci la melanzana in forno. Preleva la polpa e frullala con i fagioli, il basilico e l'aglio. Forma delle polpette e cuocile in forno a 180°C per 20 minuti." }], supplements: [supplements.energeticDrink, supplements.morning, supplements.lunch, supplements.preWorkout, supplements.preDinner, supplements.dinner, supplements.night], workout: { focus: "GAMBE - Catena Posteriore", exercises: [{ name: "LEG EXTENSION", sets: "3x15", type: 'weights', calories: 50 }, { name: "LEG CURL", sets: "3x12-15", type: 'weights', calories: 45 }, { name: "SQUAT CON MANUBRI", sets: "3x12", type: 'weights', calories: 70 }, { name: "AFFONDI", sets: "3x10 per gamba", type: 'weights', calories: 60 }, { name: "CALF RAISE", sets: "4x20", type: 'weights', calories: 30 }] }},
         "SABATO": { dayName: "SABATO", meals: [{ time: "13:30", name: "Insalata di Finocchi e Arance", calories: 300, protein: 3, carbs: 20, fats: 23, ingredients: ["1 finocchio grande", "1 arancia", "15 olive taggiasche", "Olio EVO"], prep: "Affetta finemente il finocchio. Pela l'arancia \"a vivo\" e tagliala a spicchi. Unisci tutto in una ciotola con le olive e condisci." }, { time: "16:00", name: "Spuntino", calories: 200, protein: 5, carbs: 10, fats: 15, ingredients: ["30g Frutta secca mista"] }, { time: "21:15", name: "Pasto Libero (Pizza)", calories: 1200, protein: 40, carbs: 150, fats: 45, ingredients: ["Pizza Margherita o Vegetariana"] }], supplements: [supplements.energeticDrink, supplements.morning, supplements.lunch, supplements.night], workout: { focus: "RECUPERO ATTIVO", exercises: [{ name: "CAMMINATA LUNGA", sets: "60 min", type: 'cardio', calories: 300 }] }},
         "DOMENICA": { dayName: "DOMENICA", meals: [{ time: "11:00", name: "Pasto Libero (Brunch)", calories: 800, protein: 30, carbs: 90, fats: 35, ingredients: ["Pasto Libero con consapevolezza"] }, { time: "17:00", name: "Spuntino Leggero", calories: 200, protein: 10, carbs: 25, fats: 5, ingredients: ["Yogurt e frutta"] }, { time: "21:00", name: "Minestrone Leggero", calories: 200, protein: 8, carbs: 30, fats: 5, ingredients: ["1 porzione Minestrone surgelato tipo \"leggerezza\"", "1 cucchiaino Olio EVO a crudo"], prep: "Segui le istruzioni sulla confezione. Aggiungi l'olio a crudo prima di servire." }], supplements: [supplements.morning, supplements.night], workout: null },
@@ -407,177 +407,76 @@ const getCategoryForIngredient = (name) => {
     return 'Altro';
 };
 
+// Parse and aggregate ingredient entries like "80g Quinoa" or "1/2 cipolla"
+const processIngredient = (ingredientStr, aggregated) => {
+    const knownUnits = ['g', 'kg', 'ml', 'l', 'bustina', 'spicchio', 'vasetto', 'compressa', 'capsula', 'cucchiaio', 'cucchiaino'];
+    const unitRegex = new RegExp(`^(\\d+(?:[\\.,]\\d+)?|\\d+\\/\\d+)?\\s*(${knownUnits.join('|')})?\\s*(.*)$`, 'i');
+
+    const input = String(ingredientStr || '').trim();
+    const match = input.match(unitRegex);
+
+    let qtyStr = '1';
+    let unit = '';
+    let name = input;
+
+    if (match) {
+        if (match[1]) qtyStr = match[1];
+        if (match[2]) unit = match[2];
+        if (match[3]) name = match[3].trim();
+    }
+
+    const parseQty = (s) => {
+        const str = String(s).replace(',', '.');
+        if (str.includes('/')) {
+            const [a, b] = str.split('/').map(Number);
+            if (!isNaN(a) && !isNaN(b) && b !== 0) return a / b;
+        }
+        const n = parseFloat(str);
+        return isNaN(n) ? 1 : n;
+    };
+
+    const quantity = parseQty(qtyStr);
+    const key = `${name.toLowerCase()}|${unit.toLowerCase()}`;
+    if (!aggregated[key]) aggregated[key] = { name, unit, total: 0 };
+    aggregated[key].total += quantity;
+};
+
+// Build weekly shopping list grouped by category
 const generateShoppingList = (personCount, user) => {
     const aggregated = {};
-    const dayNames = ["LUNEDÌ", "MARTEDÌ", "MERCOLEDÌ", "GIOVEDÌ", "VENERDÌ", "SABATO", "DOMENICA"];
-    const weekNumberForList = 2; // Using a non-fasting week for consistency
+    const today = new Date();
+    const start = new Date(user.startDate);
 
-    // This function must be defined before it is called.
-    const processIngredient = (ingredientStr, aggregated) => {
-        const knownUnits = ['g', 'kg', 'ml', 'l', 'bustina', 'spicchio', 'vasetto', 'compressa', 'capsula', 'cucchiaio', 'cucchiaino'];
-        const unitRegex = new RegExp(`^(\\d*\\.?\\d+|\\d+\\/\\d+)?\\s*(${knownUnits.join('|')})?\\s*(.*)$`, 'i');
-        const match = ingredientStr.match(unitRegex);
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        const diffTime = Math.abs(date - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const weekNumber = Math.ceil(diffDays / 7);
 
-        if (!match) return;
-        let [, quantityStr, unit, name] = match;
-        name = name.replace(/\(.*\)/, '').trim();
-        if (!name) return;
-        unit = unit ? unit.toLowerCase() : '';
+        const plan = getMasterDayPlanData(user, date, weekNumber, false);
+        if (!plan || !plan.meals) continue;
 
-        let quantity = 1;
-        if (quantityStr) {
-            if (quantityStr.includes('/')) {
-                const parts = quantityStr.split('/');
-                quantity = parseFloat(parts[0]) / parseFloat(parts[1]);
+        plan.meals.forEach((meal) => {
+            if (meal.type === 'choice' && Array.isArray(meal.options)) {
+                // Aggregate all options conservatively
+                meal.options.forEach((opt) => {
+                    (opt.ingredients || []).forEach((ing) => processIngredient(ing, aggregated));
+                });
             } else {
-                quantity = parseFloat(quantityStr);
+                (meal.ingredients || []).forEach((ing) => processIngredient(ing, aggregated));
             }
-        }
-        if (isNaN(quantity)) return;
-
-        const key = `${name.toLowerCase()}_${unit}`;
-        if (!aggregated[key]) {
-            aggregated[key] = { name, unit, total: 0 };
-        }
-        aggregated[key].total += quantity;
-    }
-
-    dayNames.forEach((_, index) => {
-        const representativeDate = new Date();
-        representativeDate.setDate(representativeDate.getDate() - representativeDate.getDay() + 1 + index);
-        const dayPlan = getMasterDayPlanData(user, representativeDate, weekNumberForList);
-
-        if (!dayPlan || !dayPlan.meals) return;
-
-        for (const meal of dayPlan.meals) {
-            if (meal.type === 'choice') {
-                if (meal.options && meal.options.length > 0) {
-                    // Default to the first choice for the shopping list
-                    meal.options[0].ingredients.forEach(ingredientStr => processIngredient(ingredientStr, aggregated));
-                }
-            } else if (meal.ingredients) {
-                meal.ingredients.forEach(ingredientStr => processIngredient(ingredientStr, aggregated));
-            }
-        }
-    });
-
-    const categorizedList = {};
-    Object.values(aggregated).forEach(item => {
-        const category = getCategoryForIngredient(item.name) || 'Altro';
-        if (!categorizedList[category]) {
-            categorizedList[category] = [];
-        }
-        categorizedList[category].push({
-            name: item.name,
-            quantity: Math.ceil(item.total * personCount),
-            unit: item.unit
         });
-    });
-
-    return categorizedList;
-};
-
-const parseSets = (setsString) => {
-    if (typeof setsString !== 'string' || !setsString.includes('x')) {
-        return 1;
-    }
-    const parts = setsString.split('x');
-    const numSets = parseInt(parts[0], 10);
-    return isNaN(numSets) ? 1 : numSets;
-};
-
-// --- UI COMPONENTS ---
-const Accordion = ({ title, children, startOpen = false }) => {
-    const [isOpen, setIsOpen] = useState(startOpen);
-    return (
-        <div className="mt-2 bg-slate-500/10 rounded-lg">
-            <button onClick={() => setIsOpen(!isOpen)} className="w-full p-2 flex justify-between items-center text-left text-xs font-semibold text-slate-600">
-                <span>{title}</span>
-                <span className={`transform transition-transform text-slate-400 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
-            </button>
-            {isOpen && <div className="p-2 border-t border-slate-500/10 text-xs text-slate-500">{children}</div>}
-        </div>
-    );
-};
-
-const Header = ({ user, onSwitchUser }) => {
-    const daysLeft = useCountdown(user.endDate);
-    const today = new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
-    return (
-        <header className="p-4 bg-gradient-to-br from-slate-900 to-slate-700 text-white rounded-3xl shadow-xl shadow-slate-900/20 mb-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold">Ciao {user.name}</h1>
-                    <p className="text-xs opacity-80 capitalize">{today}</p>
-                </div>
-                <div className="text-right flex items-center gap-4">
-                    <div>
-                        <p className="text-xs opacity-80">Giorni all'Obiettivo</p>
-                        <p className="text-2xl font-bold">{daysLeft}</p>
-                    </div>
-                    <button onClick={onSwitchUser} title="Cambia Utente" className="bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </header>
-    );
-};
-
-const FastingNotification = ({ user, fastingState }) => {
-    const [timeLeft, setTimeLeft] = useState('');
-    const fastingHours = 16;
-    const fastingDurationSeconds = fastingHours * 3600;
-
-    useEffect(() => {
-        if (!fastingState.isActive || !fastingState.startTime) {
-            setTimeLeft('Finestra cibo aperta!');
-            return;
-        }
-
-        const calculateTime = () => {
-            const now = new Date();
-            const fastStartTime = new Date(fastingState.startTime);
-            const fastEndTime = new Date(fastStartTime.getTime() + fastingDurationSeconds * 1000);
-
-            if (now < fastEndTime) {
-                const remainingSeconds = Math.floor((fastEndTime.getTime() - now.getTime()) / 1000);
-                if (remainingSeconds < 0) {
-                    setTimeLeft('Finestra cibo aperta!');
-                    return;
-                }
-                const hours = Math.floor(remainingSeconds / 3600);
-                const minutes = Math.floor((remainingSeconds % 3600) / 60);
-                const seconds = remainingSeconds % 60;
-                setTimeLeft(`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
-            } else {
-                setTimeLeft('Finestra cibo aperta!');
-            }
-        };
-
-        calculateTime(); 
-        const interval = setInterval(calculateTime, 1000);
-
-        return () => clearInterval(interval);
-    }, [fastingState, fastingDurationSeconds]);
-
-    if (!fastingState.isActive) {
-        return null;
     }
 
-    return (
-        <div className="p-4 bg-white/60 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg shadow-slate-900/5 flex items-center justify-center gap-3">
-            <span className="text-2xl">⏱️</span>
-            <div>
-                <p className="font-semibold text-slate-800 text-center">
-                    {timeLeft === 'Finestra cibo aperta!' ? timeLeft : `Finestra Cibo tra:`}
-                </p>
-                {timeLeft !== 'Finestra cibo aperta!' && <p className="text-2xl font-bold text-slate-800 text-center font-mono">{timeLeft}</p>}
-            </div>
-        </div>
-    );
+    const categorized = {};
+    for (const key in aggregated) {
+        const { name, unit, total } = aggregated[key];
+        const category = getCategoryForIngredient(name);
+        if (!categorized[category]) categorized[category] = [];
+        categorized[category].push({ name, unit, quantity: Math.ceil(total * personCount) });
+    }
+    return categorized;
 };
 
 const getTimeStatus = (timeStr) => {
@@ -1116,6 +1015,60 @@ const InfoBar = ({ label, consumed, total, unit, colorClass = 'bg-blue-500' }) =
             </div>
         </div>
     )
+};
+
+// Lightweight banner showing time until eating window opens
+const FastingNotification = ({ user, fastingState }) => {
+    const [timeLeft, setTimeLeft] = useState('');
+    const fastingHours = 16; // default pattern 16-8
+    const fastingDurationSeconds = fastingHours * 3600;
+
+    useEffect(() => {
+        if (!fastingState?.isActive || !fastingState?.startTime) {
+            setTimeLeft('Finestra cibo aperta!');
+            return;
+        }
+
+        const calculateTime = () => {
+            const now = new Date();
+            const fastStartTime = new Date(fastingState.startTime);
+            const fastEndTime = new Date(fastStartTime.getTime() + fastingDurationSeconds * 1000);
+
+            if (now < fastEndTime) {
+                const remainingSeconds = Math.floor((fastEndTime.getTime() - now.getTime()) / 1000);
+                if (remainingSeconds <= 0) {
+                    setTimeLeft('Finestra cibo aperta!');
+                    return;
+                }
+                const hours = Math.floor(remainingSeconds / 3600);
+                const minutes = Math.floor((remainingSeconds % 3600) / 60);
+                const seconds = remainingSeconds % 60;
+                setTimeLeft(`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+            } else {
+                setTimeLeft('Finestra cibo aperta!');
+            }
+        };
+
+        calculateTime();
+        const interval = setInterval(calculateTime, 1000);
+        return () => clearInterval(interval);
+    }, [fastingState, fastingDurationSeconds]);
+
+    if (!fastingState?.isActive) return null;
+
+    return (
+        <div className="p-4 bg-white/60 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg shadow-slate-900/5 flex items-center justify-center gap-3">
+            <span className="text-2xl">⏱️</span>
+            <div>
+                <p className="font-semibold text-slate-800 text-center">
+                    {timeLeft === 'Finestra cibo aperta!' ? timeLeft : `Finestra Cibo tra:`}
+                </p>
+                {timeLeft !== 'Finestra cibo aperta!' && (
+                    <p className="text-2xl font-bold text-slate-800 text-center font-mono">{timeLeft}</p>
+                )}
+            </div>
+        </div>
+    );
 };
 
 const DailySummary = ({ summary }) => {
@@ -2201,7 +2154,7 @@ const UserSelectionScreen = ({ onSelectUser }) => {
     );
 };
 
-const AppContent = ({ user, onUpdateUser }) => {
+const AppContent = ({ user, onUpdateUser, onSwitchUser }) => {
     const [activeTab, setActiveTab] = useState('oggi');
     const [progress, updateProgress] = useDailyProgress('progetto80_progress', user);
     const [fastingDays, setFastingDays] = usePersistentState('progetto80_fasting_days', {}, user);
@@ -2257,7 +2210,7 @@ const AppContent = ({ user, onUpdateUser }) => {
     return (
         <>
             <div className="relative z-10 container mx-auto max-w-lg p-4 pb-24">
-                <Header user={user} onSwitchUser={onUpdateUser} />
+                <Header user={user} onSwitchUser={onSwitchUser} />
                 <main>{renderContent()}</main>
             </div>
             <div className="fixed bottom-0 left-0 right-0 bg-white/60 backdrop-blur-xl flex max-w-lg mx-auto rounded-t-2xl overflow-hidden border-t border-white/30 z-50">
