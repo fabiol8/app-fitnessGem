@@ -49,7 +49,9 @@ export const useProgress = (userId, options = {}) => {
       const success = await updateCloudProgress(updatedData, merge);
       if (!success && enableLocalFallback) {
         // Cloud failed, keep local data
-        console.warn('Cloud sync failed, data saved locally');
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Cloud sync failed, data saved locally');
+        }
       }
       return success;
     }

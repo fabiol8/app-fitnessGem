@@ -122,7 +122,9 @@ export const useUserData = (userId, options = {}) => {
     if (isConnected) {
       const success = await updateCloudUser(updatedData, merge);
       if (!success && enableLocalFallback) {
-        console.warn('Cloud sync failed, data saved locally');
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Cloud sync failed, data saved locally');
+        }
       }
       return success;
     }
