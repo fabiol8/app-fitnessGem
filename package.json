@@ -4,9 +4,9 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview --port 4173",
+    "dev": "./node_modules/.bin/vite",
+    "build": "./node_modules/.bin/vite build",
+    "preview": "./node_modules/.bin/vite preview --port 4173",
     "dev:local": "./node_modules/.bin/vite",
     "build:local": "./node_modules/.bin/vite build",
     "preview:local": "./node_modules/.bin/vite preview --port 4173",
