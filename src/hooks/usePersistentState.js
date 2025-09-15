@@ -25,10 +25,24 @@ export const usePersistentState = (key, defaultValue, options = {}) => {
       if (valueToStore === undefined || valueToStore === null) {
         storage.removeItem(key);
       } else {
-        storage.setItem(key, serializer.stringify(valueToStore));
+        // Clean the value to prevent circular references
+        const cleanValue = JSON.parse(JSON.stringify(valueToStore, (key, val) => {
+          if (val != null && typeof val === "object") {
+            if (val.constructor && val.constructor.name && val.constructor.name.includes('Element')) {
+              return '[DOM Element]';
+            }
+            if (val.__reactFiber$ || val._reactInternalFiber) {
+              return '[React Fiber]';
+            }
+          }
+          return val;
+        }));
+        storage.setItem(key, serializer.stringify(cleanValue));
       }
     } catch (error) {
-      console.warn(`Error setting ${key} in storage:`, error);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`Error setting ${key} in storage:`, error);
+      }
     }
   }, [key, state, storage, serializer]);
 
