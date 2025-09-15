@@ -1,0 +1,22 @@
+# Node
+node_modules/
+npm-debug.log*
+pnpm-lock.yaml
+yarn.lock
+
+# Build
+dist/
+.vite/
+
+# Env
+.env*
+!.env.example
+
+# Firebase
+.firebase/
+firebase-debug.log
+
+# OS/Editor
+.DS_Store
+.vscode/
+
