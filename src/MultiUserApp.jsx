@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { NotificationProvider } from './contexts/NotificationContext';
+import NotificationContainer from './components/notifications/NotificationContainer';
 import AuthGuard from './components/AuthGuard';
 import AuthenticatedApp from './AuthenticatedApp';
 import SplashScreen from './components/SplashScreen';
@@ -61,11 +63,14 @@ const MultiUserApp = () => {
     );
   }
 
-  // Main app with authentication guard
+  // Main app with authentication guard and notifications
   return (
-    <AuthGuard>
-      <AuthenticatedApp />
-    </AuthGuard>
+    <NotificationProvider config={{ position: 'top-right', autoHideDuration: 5000 }}>
+      <AuthGuard>
+        <AuthenticatedApp />
+      </AuthGuard>
+      <NotificationContainer />
+    </NotificationProvider>
   );
 };
 
