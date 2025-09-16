@@ -11,7 +11,7 @@ const LoginForm = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
     rememberMe: false
   });
 
-  const { signIn, loading, error, clearError } = useAuth();
+  const { signIn, signInWithGoogle, loading, error, clearError } = useAuth();
   const {
     validationErrors,
     validateLoginForm,
@@ -54,9 +54,11 @@ const LoginForm = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    // TODO: Implement Google login
-    console.log('Google login not implemented yet');
+  const handleGoogleLogin = async () => {
+    const result = await signInWithGoogle();
+    if (result.error) {
+      console.error('Google login failed:', result.error);
+    }
   };
 
   return (
@@ -155,7 +157,7 @@ const LoginForm = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
           onClick={handleGoogleLogin}
         >
           <div className="flex items-center justify-center space-x-2">
-            <span>🔗</span>
+            <span>🌐</span>
             <span>Continua con Google</span>
           </div>
         </Button>

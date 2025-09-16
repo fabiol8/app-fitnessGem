@@ -78,6 +78,20 @@ export const useAuth = () => {
     return result;
   }, []);
 
+  const signInWithGoogle = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    const result = await authService.signInWithGoogle();
+
+    if (result.error) {
+      setError(result.error.message || result.error);
+    }
+
+    setLoading(false);
+    return result;
+  }, []);
+
   const signOut = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -166,6 +180,7 @@ export const useAuth = () => {
     // Methods
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
     resetPassword,
     updateProfile,

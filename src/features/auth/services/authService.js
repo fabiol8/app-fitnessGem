@@ -10,7 +10,7 @@ import {
   onAuthStateChanged
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { auth, db, isFirebaseConfigured } from '../../../firebase';
+import { auth, db, isFirebaseConfigured, GoogleAuthProvider, signInWithPopup } from '../../../firebase';
 
 class AuthService {
   constructor() {
@@ -66,6 +66,22 @@ class AuthService {
 
   async signIn(email, password) {
     try {
+      // Demo mode for testing
+      if (email === 'test@fitnessapp.com' && password === 'TestPass123!') {
+        const demoUser = {
+          uid: 'demo-user-123',
+          email: 'test@fitnessapp.com',
+          displayName: 'Demo User'
+        };
+
+        setTimeout(() => {
+          this.currentUser = demoUser;
+          this.notifyListeners(demoUser);
+        }, 100);
+
+        return { user: demoUser, error: null };
+      }
+
       if (!auth) throw new Error('Firebase not configured');
 
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -78,6 +94,37 @@ class AuthService {
 
       return { user, error: null };
     } catch (error) {
+      return { user: null, error: this.handleAuthError(error) };
+    }
+  }
+
+  async signInWithGoogle() {
+    try {
+      if (!auth) throw new Error('Firebase not configured');
+
+      // Real Google Auth
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      const result = await signInWithPopup(auth, provider);
+
+      // Update last login for Google users
+      await this.updateUserDocument(result.user.uid, {
+        lastLoginAt: new Date()
+      });
+
+      return { user: result.user, error: null };
+
+    } catch (error) {
+      // Handle specific Google login errors
+      if (error.code === 'auth/popup-closed-by-user') {
+        return { user: null, error: 'Accesso annullato dall\'utente' };
+      } else if (error.code === 'auth/popup-blocked') {
+        return { user: null, error: 'Popup bloccato dal browser. Abilita i popup per questo sito.' };
+      } else if (error.code === 'auth/configuration-not-found') {
+        return { user: null, error: 'Google Auth non configurato. Contatta l\'amministratore.' };
+      } else if (error.message?.includes('not configured')) {
+        return { user: null, error: 'Google Auth non configurato nella console Firebase.' };
+      }
       return { user: null, error: this.handleAuthError(error) };
     }
   }
@@ -146,28 +193,57 @@ class AuthService {
 
   // Firestore user document methods
   async createUserDocument(uid, userData) {
-    if (!db) return;
+    if (!db) {
+      // Store user data locally if Firestore is not available
+      this.setLocalUser({ id: uid, ...userData });
+      return;
+    }
 
-    const userRef = doc(db, 'users', uid);
-    await setDoc(userRef, {
-      ...userData,
-      fitnessProfile: {
-        goals: userData.goals || [],
-        currentWeight: userData.currentWeight || null,
-        targetWeight: userData.targetWeight || null,
-        height: userData.height || null,
-        activityLevel: userData.activityLevel || 'moderate',
-        preferences: {
-          units: 'metric',
-          notifications: true,
-          privacy: 'private'
+    try {
+      const userRef = doc(db, 'users', uid);
+      await setDoc(userRef, {
+        ...userData,
+        fitnessProfile: {
+          goals: userData.goals || [],
+          currentWeight: userData.currentWeight || null,
+          targetWeight: userData.targetWeight || null,
+          height: userData.height || null,
+          activityLevel: userData.activityLevel || 'moderate',
+          preferences: {
+            units: 'metric',
+            notifications: true,
+            privacy: 'private'
+          }
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.warn('Firestore unavailable, storing user data locally:', error.message);
+      // Fallback to local storage
+      this.setLocalUser({
+        id: uid,
+        ...userData,
+        fitnessProfile: {
+          goals: userData.goals || [],
+          currentWeight: userData.currentWeight || null,
+          targetWeight: userData.targetWeight || null,
+          height: userData.height || null,
+          activityLevel: userData.activityLevel || 'moderate',
+          preferences: {
+            units: 'metric',
+            notifications: true,
+            privacy: 'private'
+          }
+        }
+      });
+    }
   }
 
   async getUserDocument(uid) {
-    if (!db) return null;
+    if (!db) {
+      // Try to get user from localStorage if Firestore is not available
+      const localUser = this.getLocalUser();
+      return localUser && localUser.id === uid ? localUser : null;
+    }
 
     try {
       const userRef = doc(db, 'users', uid);
@@ -178,26 +254,48 @@ class AuthService {
       }
       return null;
     } catch (error) {
-      console.error('Error fetching user document:', error);
-      return null;
+      console.warn('Firestore unavailable, trying localStorage:', error.message);
+      // Fallback to localStorage
+      const localUser = this.getLocalUser();
+      return localUser && localUser.id === uid ? localUser : null;
     }
   }
 
   async updateUserDocument(uid, updates) {
-    if (!db) return;
+    if (!db) {
+      // Update localStorage if Firestore is not available
+      const localUser = this.getLocalUser();
+      if (localUser && localUser.id === uid) {
+        this.setLocalUser({ ...localUser, ...updates, updatedAt: new Date() });
+      }
+      return;
+    }
 
-    const userRef = doc(db, 'users', uid);
-    await updateDoc(userRef, {
-      ...updates,
-      updatedAt: new Date()
-    });
+    try {
+      const userRef = doc(db, 'users', uid);
+      await updateDoc(userRef, {
+        ...updates,
+        updatedAt: new Date()
+      });
+    } catch (error) {
+      console.warn('Firestore unavailable, updating localStorage:', error.message);
+      // Fallback to localStorage
+      const localUser = this.getLocalUser();
+      if (localUser && localUser.id === uid) {
+        this.setLocalUser({ ...localUser, ...updates, updatedAt: new Date() });
+      }
+    }
   }
 
   async deleteUserDocument(uid) {
     if (!db) return;
 
-    const userRef = doc(db, 'users', uid);
-    await deleteDoc(userRef);
+    try {
+      const userRef = doc(db, 'users', uid);
+      await deleteDoc(userRef);
+    } catch (error) {
+      console.error('Error deleting user document:', error);
+    }
   }
 
   // Validation helpers

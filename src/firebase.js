@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator, enableNetwork, disableNetwork } from 'firebase/firestore';
 import {
   getAuth,
   onAuthStateChanged,
@@ -10,7 +10,9 @@ import {
   updateProfile,
   deleteUser,
   EmailAuthProvider,
-  reauthenticateWithCredential
+  reauthenticateWithCredential,
+  GoogleAuthProvider,
+  signInWithPopup
 } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -34,9 +36,15 @@ let db = null;
 let auth = null;
 
 if (isFirebaseConfigured) {
-  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  auth = getAuth(app);
+  try {
+    app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+  } catch (error) {
+    console.warn('Firebase initialization failed, running in offline mode:', error);
+    db = null;
+    auth = null;
+  }
 }
 
-export { db, auth, isFirebaseConfigured };
+export { db, auth, isFirebaseConfigured, GoogleAuthProvider, signInWithPopup };

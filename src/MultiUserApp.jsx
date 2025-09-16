@@ -13,16 +13,21 @@ const MultiUserApp = () => {
     // Initialize any global app settings here
     const initializeApp = async () => {
       try {
+        console.log('MultiUserApp: Initializing app...');
+
         // Simulate app initialization
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500)); // Reduced to 500ms
 
         // Check if we need to show splash screen
         const hasSeenSplash = localStorage.getItem('fitness_app_splash_seen');
+        console.log('MultiUserApp: hasSeenSplash:', hasSeenSplash);
 
         if (hasSeenSplash) {
+          console.log('MultiUserApp: Hiding splash screen');
           setShowSplash(false);
         }
 
+        console.log('MultiUserApp: App initialized');
         setIsInitialized(true);
       } catch (error) {
         console.error('App initialization failed:', error);

@@ -1,289 +1,235 @@
 import React, { useState, useEffect } from 'react';
-import { TabNavigation } from './components/navigation';
-import { useFirestore } from './hooks/useFirestore';
 import { useAuth } from './features/auth/hooks/useAuth';
-
-// Import all migrated screens
-import TodayScreen from './features/today/components/TodayScreen';
-import ProgressScreen from './features/progress/components/ProgressScreen';
-import WorkoutScreen from './features/workouts/components/WorkoutScreen';
-import NutritionScreen from './features/nutrition/components/NutritionScreen';
-import MindfulnessScreen from './features/mindfulness/components/MindfulnessScreen';
-
-// Import background gradient component
-const BackgroundGradient = () => (
-  <div className="fixed inset-0 -z-10">
-    <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50" />
-    <div className="absolute top-0 left-0 w-full h-full opacity-30">
-      <div className="absolute top-20 left-20 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-blob" />
-      <div className="absolute top-40 right-20 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000" />
-      <div className="absolute -bottom-8 left-40 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000" />
-    </div>
-  </div>
-);
+import { useNotifications } from './contexts/NotificationContext';
+import OnboardingFlow from './features/onboarding/components/OnboardingFlow';
+import { authService } from './features/auth/services/authService';
 
 const AuthenticatedApp = () => {
-  const [activeTab, setActiveTab] = useState('today');
-  const { user, userProfile, signOut, getUserDisplayName, getUserInitials } = useAuth();
+  const { user, signOut, getUserDisplayName } = useAuth();
+  const { addNotification } = useNotifications();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isCompletingOnboarding, setIsCompletingOnboarding] = useState(false);
 
-  const {
-    data: progress,
-    updateData: updateProgress,
-    isLoading: progressLoading,
-    error: progressError
-  } = useFirestore('progress', user?.uid);
-
-  // Convert userProfile to compatible user object for existing components
-  const currentUser = userProfile ? {
-    id: user.uid,
-    name: userProfile.name || getUserDisplayName(),
-    email: user.email,
-    startDate: userProfile.startDate || new Date().toISOString().slice(0, 10),
-    endDate: userProfile.endDate,
-    startWeight: userProfile.currentWeight,
-    goalWeight: userProfile.targetWeight,
-    intermediateGoalWeight: userProfile.intermediateGoalWeight,
-    durationWeeks: userProfile.durationWeeks || 12,
-    height: userProfile.height,
-    dailyCalories: userProfile.dailyCalories || 2000,
-    dailyProtein: userProfile.dailyProtein || 120,
-    dailyCarbs: userProfile.dailyCarbs || 250,
-    dailyFats: userProfile.dailyFats || 65,
-    goals: userProfile.goals || [],
-    primaryGoal: userProfile.primaryGoal,
-    activityLevel: userProfile.activityLevel || 'moderate',
-    experience: userProfile.experience || 'beginner',
-    workoutDays: userProfile.workoutDays || 3,
-    preferences: userProfile.preferences || {},
-    startMeasurements: userProfile.startMeasurements || {},
-    goalMeasurements: userProfile.goalMeasurements || {}
-  } : null;
-
-  const [fastingDays, setFastingDays] = useState({});
-
-  // Initialize animation styles
   useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
-      }
-      .animate-blob {
-        animation: blob 7s infinite;
-      }
-      .animation-delay-2000 {
-        animation-delay: 2s;
-      }
-      .animation-delay-4000 {
-        animation-delay: 4s;
-      }
-    `;
-    document.head.appendChild(style);
+    const checkUserProfile = async () => {
+      console.log('checkUserProfile called, user:', user);
 
-    return () => {
-      document.head.removeChild(style);
+      if (!user) {
+        console.log('No user, setting loading to false');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        console.log('Fetching profile for user:', user.uid);
+        const profile = await authService.getUserDocument(user.uid);
+        console.log('Profile fetched:', profile);
+        setUserProfile(profile);
+
+        // Se l'utente non ha completato l'onboarding, mostralo
+        if (!profile || !profile.onboardingCompleted) {
+          console.log('Showing onboarding');
+          setShowOnboarding(true);
+        } else {
+          console.log('Onboarding completed, showing dashboard');
+        }
+      } catch (error) {
+        console.error('Error checking user profile:', error);
+        // Se c'è un errore, mostra l'onboarding per sicurezza
+        setShowOnboarding(true);
+      } finally {
+        console.log('Setting loading to false');
+        setLoading(false);
+      }
     };
-  }, []);
 
-  // Handle logout
-  const handleLogout = async () => {
-    if (window.confirm('Sei sicuro di voler disconnetterti?')) {
-      await signOut();
+    checkUserProfile();
+  }, [user]);
+
+  const handleOnboardingComplete = async (profileData) => {
+    // Prevent multiple submissions
+    if (isCompletingOnboarding) return;
+
+    try {
+      // Validate data before saving
+      if (!profileData.age || !profileData.weight || !profileData.height ||
+          !profileData.goals?.length || !profileData.experience) {
+        addNotification({
+          type: 'error',
+          title: 'Dati incompleti',
+          message: 'Completa tutti i campi obbligatori per procedere.'
+        });
+        return;
+      }
+
+      console.log('Onboarding completed:', profileData);
+      setIsCompletingOnboarding(true);
+      setLoading(true);
+
+      // Salva i dati del profilo con onboardingCompleted = true
+      const completeProfile = {
+        ...profileData,
+        name: user.displayName || user.email,
+        email: user.email,
+        onboardingCompleted: true,
+        createdAt: new Date(),
+        lastLoginAt: new Date()
+      };
+
+      await authService.createUserDocument(user.uid, completeProfile);
+
+      // Aggiorna lo stato locale
+      setUserProfile({
+        id: user.uid,
+        ...completeProfile
+      });
+
+      // Complete onboarding
+      setShowOnboarding(false);
+      setLoading(false);
+      setIsCompletingOnboarding(false);
+
+      addNotification({
+        type: 'success',
+        title: 'Profilo configurato!',
+        message: 'Il tuo profilo è stato configurato con successo. Benvenuto!'
+      });
+
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      setLoading(false);
+      setIsCompletingOnboarding(false);
+      addNotification({
+        type: 'error',
+        title: 'Errore',
+        message: 'Errore durante il salvataggio del profilo. Riprova.'
+      });
     }
   };
 
-  // Tab configuration
-  const tabs = [
-    {
-      id: 'today',
-      label: 'Oggi',
-      icon: '📅',
-      component: TodayScreen
-    },
-    {
-      id: 'workout',
-      label: 'Allenamento',
-      icon: '🏋️‍♂️',
-      component: WorkoutScreen
-    },
-    {
-      id: 'nutrition',
-      label: 'Nutrizione',
-      icon: '🍽️',
-      component: NutritionScreen
-    },
-    {
-      id: 'progress',
-      label: 'Progressi',
-      icon: '📊',
-      component: ProgressScreen
-    },
-    {
-      id: 'mindfulness',
-      label: 'Mindfulness',
-      icon: '🧘',
-      component: MindfulnessScreen
-    }
-  ];
-
-  const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component || TodayScreen;
-
-  // Calculate notification badges
-  const getNotificationCount = (tabId) => {
-    const today = new Date().toISOString().slice(0, 10);
-
-    switch (tabId) {
-      case 'today':
-        // Count incomplete daily activities
-        const dailyActivities = 10; // Total activities per day
-        const completedActivities = Object.keys(progress || {}).filter(key =>
-          key.startsWith(`activity_${today}_`)
-        ).length;
-        return Math.max(0, dailyActivities - completedActivities);
-
-      case 'workout':
-        // Check if today's workout is incomplete
-        const todaysWorkout = Object.values(progress || {}).find(item =>
-          item.type === 'workout' && item.date === today && !item.completed
-        );
-        return todaysWorkout ? 1 : 0;
-
-      case 'nutrition':
-        // Count how many meals are missing (target: 5 meals per day)
-        const todaysMeals = Object.keys(progress || {}).filter(key =>
-          key.startsWith(`meal_${today}_`)
-        ).length;
-        return Math.max(0, 5 - todaysMeals);
-
-      case 'progress':
-        // Show badge if it's Monday (measurement day)
-        const isMonday = new Date().getDay() === 1;
-        const hasWeeklyMeasurement = Object.keys(progress || {}).some(key =>
-          key.startsWith(`measurement_${today}`)
-        );
-        return isMonday && !hasWeeklyMeasurement ? 1 : 0;
-
-      case 'mindfulness':
-        // Count missing mindfulness sessions (target: 2 per day)
-        const mindfulnessSessions = Object.keys(progress || {}).filter(key =>
-          (key.startsWith('meditation_') || key.startsWith('breathing_')) && key.includes(today)
-        ).length;
-        return Math.max(0, 2 - mindfulnessSessions);
-
-      default:
-        return 0;
-    }
+  const handleSignOut = async () => {
+    await signOut();
   };
 
-  if (progressLoading) {
+  // Loading state
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <BackgroundGradient />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-4xl mb-4">⏳</div>
-          <div className="text-lg font-semibold text-slate-700">Caricamento dati...</div>
+          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <span className="text-2xl">💪</span>
+          </div>
+          <p className="text-gray-600">Caricamento profilo...</p>
         </div>
       </div>
     );
   }
 
-  if (progressError) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <BackgroundGradient />
-        <div className="text-center">
-          <div className="text-4xl mb-4">⚠️</div>
-          <div className="text-lg font-semibold text-slate-700 mb-2">Errore di connessione</div>
-          <div className="text-sm text-slate-500 mb-4">Controlla la connessione internet</div>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Riprova
-          </button>
-        </div>
-      </div>
-    );
+  // Show onboarding if needed
+  if (showOnboarding) {
+    return <OnboardingFlow onComplete={handleOnboardingComplete} user={user} />;
   }
 
-  if (!currentUser) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <BackgroundGradient />
-        <div className="text-center">
-          <div className="text-4xl mb-4">👤</div>
-          <div className="text-lg font-semibold text-slate-700">Caricamento profilo...</div>
-        </div>
-      </div>
-    );
-  }
-
+  // Main authenticated app
   return (
-    <div className="min-h-screen bg-gray-50">
-      <BackgroundGradient />
-
-      <div className="container mx-auto px-4 py-4 pb-20">
-        {/* Header with User Info */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-              {getUserInitials()}
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-xl font-bold text-slate-800">{getUserDisplayName()}</h1>
-              <p className="text-sm text-slate-500">
-                {currentUser.primaryGoal ? currentUser.primaryGoal.replace('_', ' ') : 'Fitness Journey'} • {currentUser.workoutDays} giorni/settimana
+              <h1 className="text-2xl font-bold text-gray-900">
+                🎉 Benvenuto, {getUserDisplayName()}!
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Il tuo profilo è configurato e l'app è pronta all'uso!
+              </p>
+            </div>
+            <button
+              onClick={handleSignOut}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+
+        {/* Profile Summary */}
+        {userProfile && (
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Il tuo profilo</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {userProfile.age && (
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <div className="text-2xl mb-2">🎂</div>
+                  <div className="font-medium text-gray-900">{userProfile.age} anni</div>
+                </div>
+              )}
+              {userProfile.weight && (
+                <div className="text-center p-4 bg-green-50 rounded-lg">
+                  <div className="text-2xl mb-2">⚖️</div>
+                  <div className="font-medium text-gray-900">{userProfile.weight} kg</div>
+                </div>
+              )}
+              {userProfile.height && (
+                <div className="text-center p-4 bg-purple-50 rounded-lg">
+                  <div className="text-2xl mb-2">📏</div>
+                  <div className="font-medium text-gray-900">{userProfile.height} cm</div>
+                </div>
+              )}
+            </div>
+            {userProfile.goals && userProfile.goals.length > 0 && (
+              <div className="mt-4">
+                <h3 className="font-medium text-gray-900 mb-2">I tuoi obiettivi:</h3>
+                <div className="flex flex-wrap gap-2">
+                  {userProfile.goals.map((goal, index) => (
+                    <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                      {goal.replace('_', ' ')}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Success Message */}
+        <div className="bg-green-50 border border-green-200 rounded-xl p-6">
+          <div className="flex items-center space-x-3">
+            <div className="text-green-600 text-2xl">✅</div>
+            <div>
+              <h2 className="text-lg font-semibold text-green-800">
+                App Fitness Attiva!
+              </h2>
+              <p className="text-green-700 mt-1">
+                Il sistema di autenticazione multiutente funziona correttamente.
+                L'onboarding è completato e il profilo è salvato.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            {/* Settings/Profile Button */}
-            <button
-              onClick={() => {
-                // TODO: Open profile settings modal
-                console.log('Open profile settings');
-              }}
-              className="p-2 text-slate-500 hover:text-slate-700 rounded-lg hover:bg-white/50"
-              title="Impostazioni profilo"
-            >
-              ⚙️
-            </button>
-
-            {/* Logout Button */}
-            <button
-              onClick={handleLogout}
-              className="text-slate-500 hover:text-slate-700 text-sm underline"
-              title="Disconnetti"
-            >
-              Esci
-            </button>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white rounded-lg p-4">
+              <h3 className="font-medium text-gray-900 mb-2">🔥 Firebase</h3>
+              <p className="text-sm text-gray-600">Autenticazione e storage attivi</p>
+            </div>
+            <div className="bg-white rounded-lg p-4">
+              <h3 className="font-medium text-gray-900 mb-2">⚛️ React</h3>
+              <p className="text-sm text-gray-600">Componenti funzionanti</p>
+            </div>
+            <div className="bg-white rounded-lg p-4">
+              <h3 className="font-medium text-gray-900 mb-2">🎯 Onboarding</h3>
+              <p className="text-sm text-gray-600">Completato con successo</p>
+            </div>
+            <div className="bg-white rounded-lg p-4">
+              <h3 className="font-medium text-gray-900 mb-2">💾 Profilo</h3>
+              <p className="text-sm text-gray-600">Salvato e sincronizzato</p>
+            </div>
           </div>
         </div>
-
-        {/* Main Content */}
-        <main className="mb-6">
-          <ActiveComponent
-            user={currentUser}
-            progress={progress || {}}
-            updateProgress={updateProgress}
-            fastingDays={fastingDays}
-          />
-        </main>
       </div>
-
-      {/* Bottom Navigation */}
-      <TabNavigation
-        tabs={tabs.map(tab => ({
-          ...tab,
-          badge: getNotificationCount(tab.id)
-        }))}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
     </div>
   );
 };

@@ -1,228 +1,85 @@
-import React, { useState } from 'react';
-import { Card, Button, ProgressBar } from '../../../components/ui';
+import React from 'react';
+import { Card, Button } from '../../../components/ui';
 
 const MealCard = ({
   meal,
   onEdit,
   onDelete,
-  onToggleComplete,
-  showMacros = true,
   className = ''
 }) => {
-  const [showDetails, setShowDetails] = useState(false);
+  if (!meal) return null;
 
-  const getMealTypeInfo = (type) => {
-    const mealTypes = {
-      'breakfast': { label: 'Colazione', icon: '🌅', color: 'text-orange-600' },
-      'snack-morning': { label: 'Spuntino Mattina', icon: '☕', color: 'text-amber-600' },
-      'lunch': { label: 'Pranzo', icon: '🍽️', color: 'text-blue-600' },
-      'snack-afternoon': { label: 'Spuntino Pomeriggio', icon: '🍎', color: 'text-green-600' },
-      'dinner': { label: 'Cena', icon: '🌙', color: 'text-purple-600' },
-      'snack-evening': { label: 'Spuntino Sera', icon: '🍯', color: 'text-indigo-600' }
-    };
-
-    return mealTypes[type] || { label: 'Pasto', icon: '🍽️', color: 'text-slate-600' };
-  };
-
-  const typeInfo = getMealTypeInfo(meal.type);
-
-  const getMacroPercentage = (macro, total) => {
-    if (total === 0) return 0;
-    return Math.round((macro / total) * 100);
-  };
-
-  const calculateMacroCalories = () => {
-    return (meal.protein * 4) + (meal.carbs * 4) + (meal.fats * 9);
-  };
-
-  const getMacroDistribution = () => {
-    const totalMacroCalories = calculateMacroCalories();
-    return {
-      protein: getMacroPercentage(meal.protein * 4, totalMacroCalories),
-      carbs: getMacroPercentage(meal.carbs * 4, totalMacroCalories),
-      fats: getMacroPercentage(meal.fats * 9, totalMacroCalories)
-    };
-  };
-
-  const distribution = getMacroDistribution();
+  const totalCalories = meal.foods?.reduce((total, food) => total + (food.calories || 0), 0) || 0;
+  const totalProtein = meal.foods?.reduce((total, food) => total + (food.protein || 0), 0) || 0;
+  const totalCarbs = meal.foods?.reduce((total, food) => total + (food.carbs || 0), 0) || 0;
+  const totalFat = meal.foods?.reduce((total, food) => total + (food.fat || 0), 0) || 0;
 
   return (
-    <Card
-      glass
-      padding="md"
-      className={`${className} ${meal.completed ? 'opacity-75' : ''}`}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center space-x-3">
-          <span className="text-xl">{typeInfo.icon}</span>
-          <div>
-            <h3 className={`font-semibold ${typeInfo.color}`}>
-              {typeInfo.label}
-            </h3>
-            <p className="text-sm text-slate-600">{meal.time}</p>
-          </div>
+    <Card className={`p-6 ${className}`}>
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-800">{meal.name}</h3>
+          <p className="text-sm text-gray-600">{meal.time}</p>
         </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onToggleComplete(meal.id)}
-          >
-            {meal.completed ? '✅' : '⭕'}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onEdit}
-          >
-            ✏️
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onDelete}
-          >
-            🗑️
-          </Button>
-        </div>
-      </div>
-
-      {/* Meal Name and Calories */}
-      <div className="mb-3">
-        <h4 className={`font-medium text-slate-700 ${meal.completed ? 'line-through' : ''}`}>
-          {meal.name}
-        </h4>
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-lg font-bold text-slate-800">
-            {meal.calories} kcal
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowDetails(!showDetails)}
-          >
-            {showDetails ? '👁️‍🗨️ Nascondi' : '👁️ Dettagli'}
-          </Button>
-        </div>
-      </div>
-
-      {/* Quick Macros Summary */}
-      {showMacros && (
-        <div className="grid grid-cols-3 gap-3 text-center text-sm mb-3">
-          <div>
-            <div className="font-semibold text-green-600">{meal.protein}g</div>
-            <div className="text-xs text-slate-500">Proteine</div>
-          </div>
-          <div>
-            <div className="font-semibold text-amber-600">{meal.carbs}g</div>
-            <div className="text-xs text-slate-500">Carboidrati</div>
-          </div>
-          <div>
-            <div className="font-semibold text-blue-600">{meal.fats}g</div>
-            <div className="text-xs text-slate-500">Grassi</div>
-          </div>
-        </div>
-      )}
-
-      {/* Detailed View */}
-      {showDetails && (
-        <div className="border-t border-white/20 pt-3 space-y-3">
-          {/* Macro Distribution */}
-          <div>
-            <h5 className="text-sm font-medium text-slate-600 mb-2">
-              Distribuzione Macronutrienti
-            </h5>
-
-            <div className="space-y-2">
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-green-700">Proteine ({distribution.protein}%)</span>
-                  <span>{meal.protein}g • {Math.round(meal.protein * 4)} kcal</span>
-                </div>
-                <ProgressBar
-                  value={distribution.protein}
-                  variant="success"
-                  size="sm"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-amber-700">Carboidrati ({distribution.carbs}%)</span>
-                  <span>{meal.carbs}g • {Math.round(meal.carbs * 4)} kcal</span>
-                </div>
-                <ProgressBar
-                  value={distribution.carbs}
-                  variant="warning"
-                  size="sm"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-blue-700">Grassi ({distribution.fats}%)</span>
-                  <span>{meal.fats}g • {Math.round(meal.fats * 9)} kcal</span>
-                </div>
-                <ProgressBar
-                  value={distribution.fats}
-                  variant="info"
-                  size="sm"
-                />
-              </div>
-            </div>
-
-            {/* Calorie Verification */}
-            <div className="mt-2 p-2 bg-slate-50 rounded text-xs">
-              <div className="flex justify-between">
-                <span>Calorie dichiarate:</span>
-                <span className="font-medium">{meal.calories} kcal</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Calorie dai macros:</span>
-                <span className="font-medium">{Math.round(calculateMacroCalories())} kcal</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Differenza:</span>
-                <span className={`font-medium ${
-                  Math.abs(calculateMacroCalories() - meal.calories) > meal.calories * 0.1
-                    ? 'text-red-600' : 'text-green-600'
-                }`}>
-                  {Math.round(calculateMacroCalories() - meal.calories)} kcal
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Notes */}
-          {meal.notes && (
-            <div>
-              <h5 className="text-sm font-medium text-slate-600 mb-1">Note</h5>
-              <p className="text-sm text-slate-600 bg-white/20 p-2 rounded">
-                {meal.notes}
-              </p>
-            </div>
+        <div className="flex gap-2">
+          {onEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEdit(meal)}
+            >
+              Modifica
+            </Button>
           )}
+          {onDelete && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onDelete(meal.id)}
+              className="text-red-600 hover:text-red-700"
+            >
+              Elimina
+            </Button>
+          )}
+        </div>
+      </div>
 
-          {/* Timestamps */}
-          <div className="text-xs text-slate-400 space-y-1">
-            {meal.createdAt && (
-              <div>Creato: {new Date(meal.createdAt).toLocaleString('it-IT')}</div>
-            )}
-            {meal.updatedAt && meal.updatedAt !== meal.createdAt && (
-              <div>Modificato: {new Date(meal.updatedAt).toLocaleString('it-IT')}</div>
-            )}
-          </div>
+      {meal.foods && meal.foods.length > 0 && (
+        <div className="mb-4">
+          <h4 className="font-medium text-gray-700 mb-2">Alimenti:</h4>
+          <ul className="space-y-1">
+            {meal.foods.map((food, index) => (
+              <li key={index} className="text-sm text-gray-600 flex justify-between">
+                <span>{food.name} {food.quantity && `(${food.quantity})`}</span>
+                <span>{food.calories || 0} cal</span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
-      {/* Completion Status */}
-      {meal.completed && (
-        <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-center space-x-2 text-green-700">
-            <span>✅</span>
-            <span className="text-sm font-medium">Pasto completato</span>
-          </div>
+      <div className="grid grid-cols-4 gap-4 text-center">
+        <div>
+          <p className="text-2xl font-bold text-blue-600">{totalCalories}</p>
+          <p className="text-xs text-gray-500">Calorie</p>
+        </div>
+        <div>
+          <p className="text-2xl font-bold text-green-600">{totalProtein.toFixed(1)}g</p>
+          <p className="text-xs text-gray-500">Proteine</p>
+        </div>
+        <div>
+          <p className="text-2xl font-bold text-orange-600">{totalCarbs.toFixed(1)}g</p>
+          <p className="text-xs text-gray-500">Carboidrati</p>
+        </div>
+        <div>
+          <p className="text-2xl font-bold text-purple-600">{totalFat.toFixed(1)}g</p>
+          <p className="text-xs text-gray-500">Grassi</p>
+        </div>
+      </div>
+
+      {meal.notes && (
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+          <p className="text-sm text-gray-700">{meal.notes}</p>
         </div>
       )}
     </Card>
