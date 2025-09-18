@@ -33,9 +33,18 @@ const WORKOUT_TIME_OPTIONS = [
 const RESTRICTION_OPTIONS = [
   'senza glutine',
   'senza lattosio',
-  'keto friendly',
   'vegano',
-  'vegetariano'
+  'vegetariano',
+  'frutta secca',
+  'crostate e molluschi'
+];
+
+const TRAINING_ENVIRONMENT_OPTIONS = [
+  { value: 'home', label: 'Allenamenti a casa' },
+  { value: 'gym', label: 'Palestra' },
+  { value: 'swimming', label: 'Piscina' },
+  { value: 'running', label: 'Corsa outdoor' },
+  { value: 'mixed', label: 'Mix personalizzato' },
 ];
 
 const defaultProfileState = initialProfile => ({
@@ -47,15 +56,18 @@ const defaultProfileState = initialProfile => ({
   goals: initialProfile?.fitnessProfile?.goals || initialProfile?.goals || [],
   experience: initialProfile?.fitnessProfile?.activityLevel || initialProfile?.experienceLevel || '',
   weeklyWorkouts: String(initialProfile?.weeklyWorkouts || initialProfile?.fitnessProfile?.weeklyWorkouts || 3),
+  trainingEnvironment: initialProfile?.trainingPreferences?.environment ||
+    initialProfile?.fitnessProfile?.trainingEnvironment ||
+    ['home'],
   preferredWorkoutTime: initialProfile?.fitnessProfile?.preferredWorkoutTime || initialProfile?.preferredWorkoutTime || 'morning',
   nutrition: {
     dietType: initialProfile?.nutrition?.dietType || initialProfile?.fitnessProfile?.nutrition?.dietType || 'balanced',
-    dailyCalories: getNumericString(initialProfile?.nutrition?.dailyCalories || initialProfile?.fitnessProfile?.nutrition?.dailyCalories),
     restrictions: initialProfile?.nutrition?.restrictions || initialProfile?.fitnessProfile?.nutrition?.restrictions || [],
+    excludeFoods: initialProfile?.nutrition?.excludeFoods || initialProfile?.fitnessProfile?.nutrition?.excludeFoods || '',
   },
   preferences: {
     notifications: initialProfile?.preferences?.notifications ?? initialProfile?.fitnessProfile?.preferences?.notifications ?? true,
-    privacy: initialProfile?.preferences?.privacy || initialProfile?.fitnessProfile?.preferences?.privacy || 'private',
+    shareProfile: (initialProfile?.preferences?.privacy || initialProfile?.fitnessProfile?.preferences?.privacy) === 'public',
     units: initialProfile?.preferences?.units || initialProfile?.fitnessProfile?.preferences?.units || 'metric',
   },
 });
@@ -121,7 +133,7 @@ const OnboardingFlow = ({ onComplete, user, initialProfile }) => {
       case 2:
         return profile.goals && profile.goals.length > 0;
       case 3:
-        return profile.experience && profile.weeklyWorkouts;
+        return profile.experience && profile.weeklyWorkouts && profile.trainingEnvironment.length > 0;
       case 4:
         return Boolean(profile.nutrition?.dietType);
       default:
@@ -136,7 +148,7 @@ const OnboardingFlow = ({ onComplete, user, initialProfile }) => {
       case 2:
         return 'Seleziona almeno un obiettivo fitness.';
       case 3:
-        return 'Indica il tuo livello di esperienza e quante sessioni vuoi svolgere a settimana.';
+        return 'Indica il tuo livello, i giorni di allenamento e dove ti alleni.';
       case 4:
         return 'Scegli uno stile alimentare per proseguire.';
       default:
@@ -151,6 +163,7 @@ const OnboardingFlow = ({ onComplete, user, initialProfile }) => {
     if (!profile.height) missing.push('altezza');
     if (!profile.goals?.length) missing.push('obiettivi');
     if (!profile.experience) missing.push('livello esperienza');
+    if (!profile.trainingEnvironment?.length) missing.push('ambienti allenamento');
     if (!profile.nutrition?.dietType) missing.push('preferenze alimentari');
     return missing;
   };
@@ -163,6 +176,15 @@ const OnboardingFlow = ({ onComplete, user, initialProfile }) => {
       goals: prev.goals.includes(goal)
         ? prev.goals.filter(item => item !== goal)
         : [...prev.goals, goal],
+    }));
+  };
+
+  const toggleTrainingEnvironment = environment => {
+    setProfile(prev => ({
+      ...prev,
+      trainingEnvironment: prev.trainingEnvironment.includes(environment)
+        ? prev.trainingEnvironment.filter(item => item !== environment)
+        : [...prev.trainingEnvironment, environment],
     }));
   };
 
@@ -227,11 +249,9 @@ const OnboardingFlow = ({ onComplete, user, initialProfile }) => {
         targetWeight: profile.targetWeight ? Number(profile.targetWeight) : null,
         height: profile.height ? Number(profile.height) : null,
         weeklyWorkouts: profile.weeklyWorkouts ? Number(profile.weeklyWorkouts) : 3,
+        trainingEnvironment: profile.trainingEnvironment,
         nutrition: {
           ...profile.nutrition,
-          dailyCalories: profile.nutrition.dailyCalories
-            ? Number(profile.nutrition.dailyCalories)
-            : null,
         },
       });
     } finally {
@@ -279,6 +299,7 @@ const OnboardingFlow = ({ onComplete, user, initialProfile }) => {
           updateNutrition={updateNutrition}
           toggleGoal={toggleGoal}
           toggleRestriction={toggleRestriction}
+          toggleTrainingEnvironment={toggleTrainingEnvironment}
           updatePreferences={updatePreferences}
           user={user}
         />
@@ -417,7 +438,7 @@ const GoalsStep = ({ profile, toggleGoal }) => (
   </div>
 );
 
-const ExperienceStep = ({ profile, updateProfile }) => (
+const ExperienceStep = ({ profile, updateProfile, toggleTrainingEnvironment }) => (
   <div className="space-y-6">
     <div>
       <p className="text-gray-600 mb-4">Qual è il tuo livello di allenamento?</p>
@@ -472,6 +493,30 @@ const ExperienceStep = ({ profile, updateProfile }) => (
         </select>
       </div>
     </div>
+
+    <div>
+      <p className="text-gray-600 mb-4">Dove ti vuoi allenare?</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {TRAINING_ENVIRONMENT_OPTIONS.map(option => {
+          const isActive = profile.trainingEnvironment.includes(option.value);
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => toggleTrainingEnvironment(option.value)}
+              className={`border rounded-lg px-4 py-3 transition text-left ${
+                isActive
+                  ? 'border-purple-500 bg-purple-50 text-purple-700'
+                  : 'border-gray-200 hover:border-purple-300'
+              }`}
+            >
+              <div className="font-medium">{option.label}</div>
+              {isActive && <div className="text-xs text-purple-500 mt-1">Selezionato</div>}
+            </button>
+          );
+        })}
+      </div>
+    </div>
   </div>
 );
 
@@ -499,16 +544,6 @@ const NutritionStep = ({ profile, updateNutrition, toggleRestriction }) => (
       </div>
     </div>
 
-    <Input
-      label="Calorie giornaliere (opzionale)"
-      type="number"
-      min="1000"
-      max="6000"
-      value={profile.nutrition.dailyCalories}
-      onChange={e => updateNutrition({ dailyCalories: e.target.value })}
-      placeholder="Es. 2200"
-    />
-
     <div>
       <p className="text-sm font-medium text-gray-700 mb-2">Restrizioni o preferenze</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -533,6 +568,18 @@ const NutritionStep = ({ profile, updateNutrition, toggleRestriction }) => (
         })}
       </div>
     </div>
+
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Alimenti da escludere (allergie o preferenze)
+      </label>
+      <textarea
+        className="w-full border border-gray-300 rounded-lg px-3 py-2 min-h-[90px]"
+        placeholder="Es. arachidi, crostacei, capra..."
+        value={profile.nutrition.excludeFoods}
+        onChange={e => updateNutrition({ excludeFoods: e.target.value })}
+      />
+    </div>
   </div>
 );
 
@@ -542,42 +589,39 @@ const PreferencesStep = ({ profile, updatePreferences }) => (
       <div className="border border-gray-200 rounded-lg p-4">
         <div className="flex items-center justify-between mb-2">
           <span className="font-medium text-gray-700">Notifiche</span>
-          <label className="inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only"
-              checked={profile.preferences.notifications}
-              onChange={e => updatePreferences({ notifications: e.target.checked })}
-            />
-            <span
-              className={`w-10 h-5 flex items-center bg-gray-300 rounded-full p-1 transition ${
-                profile.preferences.notifications ? 'bg-blue-500' : ''
-              }`}
-            >
-              <span
-                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition ${
-                  profile.preferences.notifications ? 'translate-x-5' : ''
-                }`}
-              />
-            </span>
-          </label>
+          <button
+            type="button"
+            onClick={() => updatePreferences({ notifications: !profile.preferences.notifications })}
+            className={`flex items-center px-3 py-1 rounded-full text-xs font-medium transition ${
+              profile.preferences.notifications
+                ? 'bg-green-100 text-green-700'
+                : 'bg-red-100 text-red-700'
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full mr-2 ${
+              profile.preferences.notifications ? 'bg-green-500' : 'bg-red-500'
+            }`} />
+            {profile.preferences.notifications ? 'On' : 'Off'}
+          </button>
         </div>
         <p className="text-sm text-gray-600">
           Ricevi promemoria per gli allenamenti e aggiornamenti sui progressi.
         </p>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Privacy del profilo</label>
-        <select
-          className="w-full border border-gray-300 rounded-lg px-3 py-2"
-          value={profile.preferences.privacy}
-          onChange={e => updatePreferences({ privacy: e.target.value })}
-        >
-          <option value="private">Privato (solo tu)</option>
-          <option value="friends">Solo amici</option>
-          <option value="public">Pubblico</option>
-        </select>
+      <div className="border border-gray-200 rounded-lg p-4 flex items-start space-x-3">
+        <input
+          type="checkbox"
+          className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded"
+          checked={profile.preferences.shareProfile}
+          onChange={e => updatePreferences({ shareProfile: e.target.checked })}
+        />
+        <div>
+          <p className="font-medium text-gray-700">Rendi il mio profilo visibile agli altri</p>
+          <p className="text-sm text-gray-500">
+            Se attivato, gli amici potranno vedere i tuoi progressi e il tuo piano.
+          </p>
+        </div>
       </div>
     </div>
 
@@ -609,7 +653,12 @@ const PreferencesStep = ({ profile, updatePreferences }) => (
   </div>
 );
 
-const SummaryStep = ({ profile, user }) => (
+const SummaryStep = ({ profile, user }) => {
+  const recommendedCalories = calculateRecommendedCalories(profile);
+  const macroSplit = getMacroDistribution(recommendedCalories);
+  const workoutPlan = generateWorkoutSchedule(profile);
+
+  return (
   <div className="space-y-6">
     <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
       <h3 className="font-medium text-blue-800 mb-2">Riepilogo per {user?.email || 'utente'}</h3>
@@ -641,6 +690,9 @@ const SummaryStep = ({ profile, user }) => (
           EXPERIENCE_OPTIONS.find(option => option.value === profile.experience)?.label,
           profile.weeklyWorkouts && `${profile.weeklyWorkouts} sessioni/settimana`,
           WORKOUT_TIME_OPTIONS.find(option => option.value === profile.preferredWorkoutTime)?.label,
+          profile.trainingEnvironment.length
+            ? `Ambienti: ${profile.trainingEnvironment.map(env => TRAINING_ENVIRONMENT_OPTIONS.find(o => o.value === env)?.label || env).join(', ')}`
+            : null,
         ]}
       />
 
@@ -648,15 +700,27 @@ const SummaryStep = ({ profile, user }) => (
         title="Nutrizione e preferenze"
         items={[
           DIET_OPTIONS.find(option => option.value === profile.nutrition.dietType)?.label,
-          profile.nutrition.dailyCalories && `${profile.nutrition.dailyCalories} kcal`,
+          `${recommendedCalories} kcal suggerite`,
+          macroSplit && `Macronutrienti: P ${macroSplit.protein}g / C ${macroSplit.carbs}g / G ${macroSplit.fat}g`,
           profile.nutrition.restrictions.length ? `Restrizioni: ${profile.nutrition.restrictions.join(', ')}` : null,
+          profile.nutrition.excludeFoods ? `Escludi: ${profile.nutrition.excludeFoods}` : null,
           profile.preferences.notifications ? 'Notifiche attive' : 'Notifiche disattivate',
-          `Privacy: ${profile.preferences.privacy}`,
+          profile.preferences.shareProfile ? 'Profilo condiviso' : 'Profilo privato',
         ]}
       />
     </div>
+
+    <div className="border border-green-200 bg-green-50 rounded-lg p-4">
+      <h4 className="font-medium text-green-800 mb-2">Esempio di piano settimanale suggerito</h4>
+      <ul className="text-sm text-green-700 space-y-1">
+        {workoutPlan.map((session, index) => (
+          <li key={index}>• {session}</li>)
+        )}
+      </ul>
+    </div>
   </div>
 );
+};
 
 const SummaryCard = ({ title, items }) => {
   const filteredItems = items.filter(Boolean);
@@ -675,3 +739,71 @@ const SummaryCard = ({ title, items }) => {
 };
 
 export default OnboardingFlow;
+export { calculateRecommendedCalories, getMacroDistribution, generateWorkoutSchedule };
+
+function calculateRecommendedCalories(profile) {
+  const weight = Number(profile.weight) || 0;
+  const height = Number(profile.height) || 0;
+  const age = Number(profile.age) || 30;
+  const gender = profile.gender?.toLowerCase() || 'other';
+
+  let bmr = 10 * weight + 6.25 * height - 5 * age;
+  if (gender.includes('f') || gender.includes('don')) {
+    bmr -= 161;
+  } else {
+    bmr += 5;
+  }
+
+  const activityFactor = (() => {
+    const workouts = Number(profile.weeklyWorkouts) || 3;
+    if (workouts <= 2) return 1.375;
+    if (workouts <= 4) return 1.55;
+    if (workouts <= 6) return 1.725;
+    return 1.9;
+  })();
+
+  const experienceFactor = profile.experience === 'advanced' ? 1.05 : profile.experience === 'beginner' ? 0.95 : 1;
+  const goalModifier = profile.goals.includes('weight_loss')
+    ? 0.9
+    : profile.goals.includes('muscle_gain')
+      ? 1.1
+      : 1;
+
+  return Math.round(bmr * activityFactor * experienceFactor * goalModifier);
+}
+
+function getMacroDistribution(calories) {
+  if (!calories) return null;
+  const proteinCalories = calories * 0.3;
+  const carbCalories = calories * 0.45;
+  const fatCalories = calories * 0.25;
+
+  return {
+    protein: Math.round(proteinCalories / 4),
+    carbs: Math.round(carbCalories / 4),
+    fat: Math.round(fatCalories / 9),
+  };
+}
+
+function generateWorkoutSchedule(profile) {
+  const days = Number(profile.weeklyWorkouts) || 3;
+  const environments = profile.trainingEnvironment?.length ? profile.trainingEnvironment : ['home'];
+
+  const templates = {
+    home: ['Circuito full body', 'HIIT rapido', 'Mobilità e stretching'],
+    gym: ['Forza parte alta', 'Forza parte bassa', 'Total body con pesi'],
+    swimming: ['Tecnica di nuoto', 'Resistenza in vasca', 'Recupero attivo'],
+    running: ['Corsa lunga', 'Ripetute veloci', 'Lavoro in salita'],
+    mixed: ['Allenamento funzionale', 'Metcon', 'Yoga rigenerante'],
+  };
+
+  const selected = environments.flatMap(env => templates[env] || []);
+  const plan = [];
+
+  for (let i = 0; i < days; i += 1) {
+    const suggestion = selected[i % selected.length] || 'Sessione personalizzata';
+    plan.push(`Giorno ${i + 1}: ${suggestion}`);
+  }
+
+  return plan;
+}

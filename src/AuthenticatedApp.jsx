@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './features/auth/hooks/useAuth';
 import { useNotifications } from './contexts/NotificationContext';
-import OnboardingFlow from './features/onboarding/components/OnboardingFlow';
+import OnboardingFlow, {
+  calculateRecommendedCalories,
+  getMacroDistribution,
+  generateWorkoutSchedule,
+} from './features/onboarding/components/OnboardingFlow';
 import { authService } from './features/auth/services/authService';
 
 const AuthenticatedApp = () => {
@@ -71,6 +75,10 @@ const AuthenticatedApp = () => {
       setIsCompletingOnboarding(true);
       setLoading(true);
 
+      const recommendedCalories = calculateRecommendedCalories(profileData);
+      const macroSplit = getMacroDistribution(recommendedCalories);
+      const workoutPlan = generateWorkoutSchedule(profileData);
+
       const completeProfile = {
         name: user.displayName || user.email,
         email: user.email,
@@ -82,8 +90,30 @@ const AuthenticatedApp = () => {
         experienceLevel: profileData.experience,
         weeklyWorkouts: Number(profileData.weeklyWorkouts) || 3,
         preferredWorkoutTime: profileData.preferredWorkoutTime,
-        nutrition: profileData.nutrition,
-        preferences: profileData.preferences,
+        trainingPreferences: {
+          environment: profileData.trainingEnvironment,
+          weeklyWorkouts: Number(profileData.weeklyWorkouts) || 3,
+          preferredWorkoutTime: profileData.preferredWorkoutTime,
+        },
+        nutrition: {
+          ...profileData.nutrition,
+          recommendedCalories,
+          macroSplit,
+        },
+        preferences: {
+          ...profileData.preferences,
+          privacy: profileData.preferences.shareProfile ? 'public' : 'private',
+        },
+        generatedPlans: {
+          nutritionPlan: {
+            calories: recommendedCalories,
+            macros: macroSplit,
+            dietType: profileData.nutrition.dietType,
+            restrictions: profileData.nutrition.restrictions,
+            excludeFoods: profileData.nutrition.excludeFoods,
+          },
+          workoutPlan,
+        },
         onboardingCompleted: true,
         lastLoginAt: new Date(),
         fitnessProfile: {
@@ -94,9 +124,18 @@ const AuthenticatedApp = () => {
           activityLevel: profileData.experience,
           weeklyWorkouts: Number(profileData.weeklyWorkouts) || 3,
           preferredWorkoutTime: profileData.preferredWorkoutTime,
-          preferences: profileData.preferences,
-          nutrition: profileData.nutrition,
-        }
+          trainingEnvironment: profileData.trainingEnvironment,
+          preferences: {
+            notifications: profileData.preferences.notifications,
+            units: profileData.preferences.units,
+            privacy: profileData.preferences.shareProfile ? 'public' : 'private',
+          },
+          nutrition: {
+            ...profileData.nutrition,
+            recommendedCalories,
+            macroSplit,
+          },
+        },
       };
 
       await authService.updateUserDocument(user.uid, completeProfile);
