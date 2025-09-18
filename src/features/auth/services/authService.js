@@ -55,6 +55,7 @@ class AuthService {
   // Auth state listeners
   addAuthListener(callback) {
     this.authListeners.push(callback);
+    callback(this.currentUser);
     return () => {
       this.authListeners = this.authListeners.filter(listener => listener !== callback);
     };
