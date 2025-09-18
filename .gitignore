@@ -7,6 +7,10 @@ yarn.lock
 # Build
 dist/
 .vite/
+coverage/
+
+# Reports
+lighthouse-*.json
 
 # Env
 .env*
@@ -19,4 +23,3 @@ firebase-debug.log
 # OS/Editor
 .DS_Store
 .vscode/
-
