@@ -133,6 +133,18 @@ class AuthService {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
 
+    const preferRedirect = import.meta?.env?.PROD;
+
+    if (preferRedirect) {
+      try {
+        await signInWithRedirect(auth, provider);
+        return { user: null, error: null, redirect: true };
+      } catch (redirectError) {
+        console.error('Google redirect sign-in failed', redirectError);
+        // fallback to popup in case redirect fails (e.g. in development preview)
+      }
+    }
+
     try {
       const result = await signInWithPopup(auth, provider);
 

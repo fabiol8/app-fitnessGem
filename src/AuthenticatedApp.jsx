@@ -53,9 +53,13 @@ const AuthenticatedApp = () => {
     if (isCompletingOnboarding) return;
 
     try {
-      // Validate data before saving
-      if (!profileData.age || !profileData.weight || !profileData.height ||
-          !profileData.goals?.length || !profileData.experience) {
+      if (
+        !profileData.age ||
+        !profileData.weight ||
+        !profileData.height ||
+        !profileData.goals?.length ||
+        !profileData.experience
+      ) {
         addNotification({
           type: 'error',
           title: 'Dati incompleti',
@@ -64,27 +68,44 @@ const AuthenticatedApp = () => {
         return;
       }
 
-      console.log('Onboarding completed:', profileData);
       setIsCompletingOnboarding(true);
       setLoading(true);
 
-      // Salva i dati del profilo con onboardingCompleted = true
       const completeProfile = {
-        ...profileData,
         name: user.displayName || user.email,
         email: user.email,
+        age: Number(profileData.age),
+        weight: profileData.weight ? Number(profileData.weight) : null,
+        height: profileData.height ? Number(profileData.height) : null,
+        gender: profileData.gender || null,
+        goals: profileData.goals,
+        experienceLevel: profileData.experience,
+        weeklyWorkouts: Number(profileData.weeklyWorkouts) || 3,
+        preferredWorkoutTime: profileData.preferredWorkoutTime,
+        nutrition: profileData.nutrition,
+        preferences: profileData.preferences,
         onboardingCompleted: true,
-        createdAt: new Date(),
-        lastLoginAt: new Date()
+        lastLoginAt: new Date(),
+        fitnessProfile: {
+          goals: profileData.goals,
+          currentWeight: profileData.weight ? Number(profileData.weight) : null,
+          targetWeight: profileData.targetWeight ? Number(profileData.targetWeight) : null,
+          height: profileData.height ? Number(profileData.height) : null,
+          activityLevel: profileData.experience,
+          weeklyWorkouts: Number(profileData.weeklyWorkouts) || 3,
+          preferredWorkoutTime: profileData.preferredWorkoutTime,
+          preferences: profileData.preferences,
+          nutrition: profileData.nutrition,
+        }
       };
 
-      await authService.createUserDocument(user.uid, completeProfile);
+      await authService.updateUserDocument(user.uid, completeProfile);
 
-      // Aggiorna lo stato locale
-      setUserProfile({
+      setUserProfile(prev => ({
         id: user.uid,
-        ...completeProfile
-      });
+        ...(prev || {}),
+        ...completeProfile,
+      }));
 
       // Complete onboarding
       setShowOnboarding(false);
@@ -129,7 +150,13 @@ const AuthenticatedApp = () => {
 
   // Show onboarding if needed
   if (showOnboarding) {
-    return <OnboardingFlow onComplete={handleOnboardingComplete} user={user} />;
+    return (
+      <OnboardingFlow
+        onComplete={handleOnboardingComplete}
+        user={user}
+        initialProfile={userProfile}
+      />
+    );
   }
 
   // Main authenticated app
