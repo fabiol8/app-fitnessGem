@@ -12,7 +12,9 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult
 } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -47,4 +49,12 @@ if (isFirebaseConfigured) {
   }
 }
 
-export { db, auth, isFirebaseConfigured, GoogleAuthProvider, signInWithPopup };
+export {
+  db,
+  auth,
+  isFirebaseConfigured,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult
+};

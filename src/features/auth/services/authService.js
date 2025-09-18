@@ -10,7 +10,15 @@ import {
   onAuthStateChanged
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { auth, db, isFirebaseConfigured, GoogleAuthProvider, signInWithPopup } from '../../../firebase';
+import {
+  auth,
+  db,
+  isFirebaseConfigured,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult
+} from '../../../firebase';
 
 class AuthService {
   constructor() {
@@ -22,6 +30,25 @@ class AuthService {
         this.currentUser = user;
         this.notifyListeners(user);
       });
+
+      getRedirectResult(auth)
+        .then(async (result) => {
+          if (result && result.user) {
+            this.currentUser = result.user;
+            this.notifyListeners(result.user);
+
+            try {
+              await this.updateUserDocument(result.user.uid, {
+                lastLoginAt: new Date()
+              });
+            } catch (err) {
+              console.error('Failed to update user after redirect login', err);
+            }
+          }
+        })
+        .catch((redirectError) => {
+          console.error('Google redirect sign-in error', redirectError);
+        });
     }
   }
 
@@ -99,32 +126,42 @@ class AuthService {
   }
 
   async signInWithGoogle() {
-    try {
-      if (!auth) throw new Error('Firebase not configured');
+    if (!auth) {
+      return { user: null, error: 'Firebase non configurato' };
+    }
 
-      // Real Google Auth
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    try {
       const result = await signInWithPopup(auth, provider);
 
-      // Update last login for Google users
       await this.updateUserDocument(result.user.uid, {
         lastLoginAt: new Date()
       });
 
       return { user: result.user, error: null };
-
     } catch (error) {
-      // Handle specific Google login errors
-      if (error.code === 'auth/popup-closed-by-user') {
-        return { user: null, error: 'Accesso annullato dall\'utente' };
-      } else if (error.code === 'auth/popup-blocked') {
-        return { user: null, error: 'Popup bloccato dal browser. Abilita i popup per questo sito.' };
-      } else if (error.code === 'auth/configuration-not-found') {
-        return { user: null, error: 'Google Auth non configurato. Contatta l\'amministratore.' };
-      } else if (error.message?.includes('not configured')) {
-        return { user: null, error: 'Google Auth non configurato nella console Firebase.' };
+      console.error('Google sign-in failed', error);
+
+      if (error?.code === 'auth/popup-closed-by-user' || error?.code === 'auth/cancelled-popup-request') {
+        try {
+          await signInWithRedirect(auth, provider);
+          return { user: null, error: null, redirect: true };
+        } catch (redirectError) {
+          console.error('Google sign-in redirect fallback failed', redirectError);
+          return { user: null, error: this.handleAuthError(redirectError) };
+        }
       }
+
+      if (error?.code === 'auth/popup-blocked') {
+        return { user: null, error: 'Popup bloccato dal browser. Abilita i popup per questo sito.' };
+      }
+
+      if (error?.code === 'auth/configuration-not-found' || error?.message?.includes('not configured')) {
+        return { user: null, error: 'Google Auth non configurato. Contatta l\'amministratore.' };
+      }
+
       return { user: null, error: this.handleAuthError(error) };
     }
   }

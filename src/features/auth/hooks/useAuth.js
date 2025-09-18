@@ -84,11 +84,13 @@ export const useAuth = () => {
 
     const result = await authService.signInWithGoogle();
 
-    if (result.error) {
+    if (result?.error) {
       setError(result.error.message || result.error);
     }
 
-    setLoading(false);
+    if (!result?.redirect) {
+      setLoading(false);
+    }
     return result;
   }, []);
 
