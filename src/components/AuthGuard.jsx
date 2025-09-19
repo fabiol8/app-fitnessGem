@@ -16,6 +16,14 @@ const AuthGuard = ({ children }) => {
     hasCompletedOnboarding
   } = useAuth();
 
+  console.log('AuthGuard state:', {
+    loading,
+    isAuthenticated,
+    hasCompletedOnboarding,
+    user,
+    userProfile
+  });
+
   // Show loading while checking auth state
   if (loading) {
     return (

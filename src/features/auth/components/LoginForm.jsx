@@ -11,7 +11,7 @@ const LoginForm = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
     rememberMe: false
   });
 
-  const { signIn, signInWithGoogle, loading, error, clearError } = useAuth();
+  const { signIn, loading, error, clearError } = useAuth();
   const {
     validationErrors,
     validateLoginForm,
@@ -51,13 +51,6 @@ const LoginForm = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
 
     if (result.error) {
       console.error('Login failed:', result.error);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    const result = await signInWithGoogle();
-    if (result.error) {
-      console.error('Google login failed:', result.error);
     }
   };
 
@@ -136,30 +129,6 @@ const LoginForm = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
           loading={loading}
         >
           {loading ? 'Accesso in corso...' : 'Accedi'}
-        </Button>
-
-        {/* Divider */}
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">oppure</span>
-          </div>
-        </div>
-
-        {/* Google Login */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="lg"
-          className="w-full border border-gray-300"
-          onClick={handleGoogleLogin}
-        >
-          <div className="flex items-center justify-center space-x-2">
-            <span>🌐</span>
-            <span>Continua con Google</span>
-          </div>
         </Button>
 
         {/* Switch to Register */}

@@ -15,11 +15,18 @@ service cloud.firestore {
         email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
     }
 
+    function isTimestamp(value) {
+      return value is timestamp;
+    }
+
     function validateUserData(data) {
       return data.keys().hasAll(['email', 'name']) &&
         hasValidEmail(data.email) &&
         data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
-        (!('fitnessProfile' in data) || validateFitnessProfile(data.fitnessProfile));
+        (!('fitnessProfile' in data) || validateFitnessProfile(data.fitnessProfile)) &&
+        (!('preferences' in data) || data.preferences is map) &&
+        (!('trainingPreferences' in data) || data.trainingPreferences is map) &&
+        (!('generatedPlans' in data) || data.generatedPlans is map);
     }
 
     function validateProgressData(data) {
@@ -50,12 +57,13 @@ service cloud.firestore {
 
       allow create: if isOwner(userId) &&
         validateUserData(request.resource.data) &&
-        request.resource.data.createdAt == request.time &&
-        request.resource.data.updatedAt == request.time;
+        (!('createdAt' in request.resource.data) || isTimestamp(request.resource.data.createdAt)) &&
+        (!('updatedAt' in request.resource.data) || isTimestamp(request.resource.data.updatedAt));
 
       allow update: if isOwner(userId) &&
         validateUserData(request.resource.data) &&
-        request.resource.data.updatedAt == request.time &&
+        (!('updatedAt' in request.resource.data) || isTimestamp(request.resource.data.updatedAt)) &&
+        (!('updatedAt' in resource.data) || request.resource.data.updatedAt >= resource.data.updatedAt) &&
         passesRateLimit() &&
         request.resource.data.email == resource.data.email;
 
@@ -96,13 +104,14 @@ service cloud.firestore {
 
     function validateFitnessProfile(profile) {
       return profile is map &&
-        profile.keys().hasAll(['goals', 'preferences']) &&
-        profile.goals is list && profile.goals.size() <= 10 &&
-        profile.preferences is map &&
+        (!('goals' in profile) || (profile.goals is list && profile.goals.size() <= 10)) &&
+        (!('preferences' in profile) || profile.preferences is map) &&
+        (!('trainingEnvironment' in profile) || profile.trainingEnvironment is list) &&
+        (!('nutrition' in profile) || profile.nutrition is map) &&
+        (!('weeklyWorkouts' in profile) || (profile.weeklyWorkouts is number && profile.weeklyWorkouts >= 0 && profile.weeklyWorkouts <= 14)) &&
         (!('currentWeight' in profile) || (profile.currentWeight is number && profile.currentWeight > 0 && profile.currentWeight < 1000)) &&
         (!('targetWeight' in profile) || (profile.targetWeight is number && profile.targetWeight > 0 && profile.targetWeight < 1000)) &&
-        (!('height' in profile) || (profile.height is number && profile.height > 0 && profile.height < 300)) &&
-        (!('activityLevel' in profile) || profile.activityLevel in ['low', 'moderate', 'high']);
+        (!('height' in profile) || (profile.height is number && profile.height > 0 && profile.height < 300));
     }
 
     function validateNutritionData(data) {

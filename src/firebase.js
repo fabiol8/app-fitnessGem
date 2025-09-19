@@ -10,11 +10,7 @@ import {
   updateProfile,
   deleteUser,
   EmailAuthProvider,
-  reauthenticateWithCredential,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult
+  reauthenticateWithCredential
 } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -52,9 +48,5 @@ if (isFirebaseConfigured) {
 export {
   db,
   auth,
-  isFirebaseConfigured,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult
+  isFirebaseConfigured
 };
